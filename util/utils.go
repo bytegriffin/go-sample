@@ -7,8 +7,8 @@ import (
 )
 
 // 三元表达式
-func If(flag bool, a, b interface{}) interface{} {
-	if flag {
+func If(exp bool, a, b interface{}) interface{} {
+	if exp {
 		return a
 	}
 	return b
