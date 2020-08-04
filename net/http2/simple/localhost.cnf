@@ -1,0 +1,18 @@
+[ req ]
+prompt             = no
+string_mask        = default
+default_bits       = 2048
+distinguished_name = dn
+x509_extensions    = x509_ext
+
+[ dn ]
+countryName = bj
+organizationName = Test
+commonName = localhost
+
+[ x509_ext ]
+keyUsage=critical,digitalSignature,keyAgreement
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = localhost

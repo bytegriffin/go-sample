@@ -10,7 +10,7 @@ import (
 )
 
 // 带有Basic认证的客户端请求
-func basicAuth() {
+func startBasicAuthClient() {
 	client := &http.Client{}
 	request, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8000/auth", nil)
 	if err != nil {
@@ -46,7 +46,7 @@ openssl genrsa -out client.key 2048
 openssl req -new -key client.key -subj "/CN=client" -out client.csr
 openssl x509 -req -in client.csr -CA client-ca.crt -CAkey client-ca.key -CAcreateserial -out client.crt -days 5000
 */
-func tlsAuth() {
+func startTlsAuthClient() {
 	pool := x509.NewCertPool()
 	caCertFile := "ca.crt"
 
@@ -75,11 +75,11 @@ func tlsAuth() {
 		log.Println("ssl client error：", err)
 		return
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	body, _ := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
-	log.Println(string(body))
+	log.Println("recv server ===> ", string(body))
 }
 
 func TestHttpAuthClient(t *testing.T) {
-	tlsAuth()
+	startTlsAuthClient()
 }

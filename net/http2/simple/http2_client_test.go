@@ -3,17 +3,18 @@ package simple
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"golang.org/x/net/http2"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"testing"
+
+	"golang.org/x/net/http2"
 )
 
 // h2 client
 func startH2Client() {
-	crt, err := ioutil.ReadFile("public.crt")
+	crt, err := ioutil.ReadFile("server.crt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -24,7 +25,7 @@ func startH2Client() {
 	client := &http.Client{
 		Transport: &http2.Transport{
 			TLSClientConfig: &tls.Config{
-				RootCAs:            rootCAs,
+				//RootCAs:            rootCAs,
 				InsecureSkipVerify: false,
 				ServerName:         "localhost",
 			},
@@ -33,7 +34,7 @@ func startH2Client() {
 		},
 	}
 
-	resp, err := client.Get("https://localhost:8000")
+	resp, err := client.Get("https://localhost:8000/")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,6 +47,16 @@ func startH2Client() {
 	resp.Body.Close()
 
 	log.Printf("Response Http Proto: %s Content: %s", resp.Proto, string(bytes))
+}
+
+// 没有相应的认证，直接访问会出错
+func startH2ClientNoTls() {
+	resp, err := http.Get("https://localhost:8000")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	bytes, _ := ioutil.ReadAll(resp.Body)
+	log.Println(string(bytes))
 }
 
 // h2c client

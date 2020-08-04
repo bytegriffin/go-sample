@@ -4,7 +4,7 @@ Http支持的几种认证方式：
 2.Http Digest摘要认证：为了弥补Basic认证中发送明文的缺点，Http1.1开始采用Nonce随机数进行
   非可逆加密（例如MD5，SHA1），即：客户端将用户名、密码和nonce随机数生成的Salt值等字段一起加密，并将其计算
   出的值与服务端计算出的值进行比对是否相同，就算通讯期间被截取也不容易解码，但缺点是用户可以伪装身份访问资源。
-3.SSL客户端认证：安全级别较高，一般使用时会跟搭配其他认证一起使用，申请认证者除了密码还需提供其他特有信息，
+3.SSL/TLS客户端认证：安全级别较高，一般使用时会跟搭配其他认证一起使用，申请认证者除了密码还需提供其他特有信息，
   可避免用户被第三者冒充的问题，但是需要花费一定费用去购买安全证书。
 4.Http表单认证：一般采用基于Cookie、Session的方式，大多数人都在使用它创建动态网站，倘若遇到XSS攻击，可使用
   text/template包进行转码或者直接在Cookie中添加httponly属性。但是这种认证扩展性不佳，比如涉及到跨域就
@@ -67,14 +67,6 @@ func startBasicAuthServer() {
 	http.ListenAndServe("127.0.0.1:8000", nil)
 }
 
-type indexHandler struct {
-}
-
-func (i indexHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	log.Print("client hello.")
-	writer.Write([]byte("server hello"))
-}
-
 /*
 开启 TLS auth server 进行双端认证，服务端只允许特定的客户端进行访问，
 
@@ -100,8 +92,11 @@ func startTLSAuthServer() {
 	pool.AppendCertsFromPEM(caCrt)
 
 	s := &http.Server{
-		Addr:    "localhost:443",
-		Handler: &indexHandler{},
+		Addr: "localhost:443",
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			log.Println("client send ===> client hello.")
+			w.Write([]byte("server hello"))
+		}),
 		TLSConfig: &tls.Config{
 			ClientCAs:              pool,
 			ClientAuth:             tls.RequireAndVerifyClientCert,

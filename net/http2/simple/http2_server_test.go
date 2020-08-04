@@ -1,61 +1,53 @@
 package simple
 
 import (
-	"crypto/tls"
 	"fmt"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"testing"
 	"time"
+
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 )
 
 /**
   H2模式：需要TLS加密进行HTTP/2连接，在TLS握手期间会顺带完成HTTPS/2协议的协商，
   即：当客户端发送Client Hello时便指定ALPN Next Protocol为h2或http/1.1说明客户端支持的协议，
   如果双方协商失败（比如客户端或者服务端不支持），则会使用HTTPS/1.1继续通讯。
-  使用OpenSSL命令生成私钥和证书：
-  openssl genrsa -out private.key 4096
-  openssl req -new -x509 -sha256 -days 1825 -key private.key -out public.crt
+
+  使用OpenSSL为localhost生成私钥和证书，在win10下需要打开管理员模式的PowerShell：
+  .\openssl req -x509 -out server.crt -keyout server.key -newkey rsa:2048 -nodes -sha256 -config localhost.cnf
+  如果希望浏览器能访问正常，而非golang程序客户端，可以将证书安装到”受信任的根证书颁发机构“中，
+  注意此时如果还想用golang程序客户端访问，就算不带TLS认证也能访问正确，因为证书之前已经安装到操作系统中了。
 */
 func startH2Server() {
-	crt, err := ioutil.ReadFile("public.crt")
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	key, err := ioutil.ReadFile("private.key")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	cert, err := tls.X509KeyPair(crt, key)
-	if err != nil {
-		log.Fatal(err)
-	}
+	//cert, err := tls.LoadX509KeyPair("public.crt", "private.key")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 
 	server := &http.Server{
 		Addr:         ":8000",
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
-		TLSConfig: &tls.Config{
-			Certificates: []tls.Certificate{cert},
-			ServerName:   "localhost",
-		},
+		//TLSConfig: &tls.Config{
+		//	Certificates: []tls.Certificate{cert},
+		//	ServerName:   "localhost",
+		//},
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			log.Println("Protocol: " + r.Proto)
+			w.Write([]byte("Protocol: " + r.Proto))
+		}),
 	}
 
-	//if err := http2.ConfigureServer(server, nil); err != nil {
+	//if err := http2.ConfigureServer(server, &http2.Server{}); err != nil {
 	//	log.Fatal(err)
 	//}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Protocol: " + r.Proto)
-		w.Write([]byte("Protocol: " + r.Proto))
-	})
 	log.Printf("Listening [localhost:8000]...\n")
-	if err := server.ListenAndServeTLS("public.crt", "private.key"); err != nil {
+	if err := server.ListenAndServeTLS("server.crt", "server.key"); err != nil {
 		log.Fatal(err)
 	}
 }

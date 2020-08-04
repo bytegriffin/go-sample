@@ -16,8 +16,8 @@ openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
 func TestHttp2ServerPush(t *testing.T) {
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// 浏览器在正常Response之前会优先发送PUSH_PROMISE frame，来说明要为客户端推送资源，
-		// 客户端收到请求后，针对这些资源就不会主动向服务端发请求。
+		// 浏览器在正常接收Response之前会优先接收服务端发送的PUSH_PROMISE frame，
+		// 来说明要为客户端推送资源，客户端收到请求后，针对这些资源就不会主动再向服务端发请求。
 		pusher, ok := w.(http.Pusher)
 		if ok {
 			if err := pusher.Push("/static/app.js", nil); err != nil {
