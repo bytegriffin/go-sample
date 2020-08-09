@@ -9,7 +9,7 @@ import (
 )
 
 /**
-写Frame Header，表示打开一个流，此外还携带一个header块片段，Header Frame格式：
+写Frame Header，表示打开一个流，此外还携带一个header块片段，HEADER Frame格式：
 +---------------+
 |Pad Length? (8)|
 +-+-------------+-----------------------------------------------+
@@ -79,7 +79,7 @@ func writeFramePushPromise(framer *http2.Framer) *http2.Framer {
 }
 
 /**
-写Priority，表示流发送者建议的优先级，Priority Frame格式：
+写Priority，表示流发送者建议的优先级，PRIORITY Frame格式：
 +-+-------------------------------------------------------------+
 |E|                  Stream Dependency (31)                     |
 +-+-------------+-----------------------------------------------+
@@ -129,7 +129,7 @@ func writeSettings(framer *http2.Framer) *http2.Framer {
 }
 
 /**
-写Ping，表示测量来自发送方的最小往返时间，以及确定空闲连接是否仍然有效，Ping Frame格式：
+写Ping，表示测量来自发送方的最小往返时间，以及确定空闲连接是否仍然有效，PING Frame格式：
 +---------------------------------------------------------------+
 |                      Opaque Data (64)                         |
 +---------------------------------------------------------------+
@@ -173,6 +173,19 @@ func writeContinuation(framer *http2.Framer) *http2.Framer {
 	return framer
 }
 
+/**
+写WindowUpdate，用于流量控制，WINDOW_UPDATE Frame格式：
++-+-------------------------------------------------------------+
+|R|              Window Size Increment (31)                     |
++-+-------------------------------------------------------------+
+*/
+func writeWindowUpdate(framer *http2.Framer) *http2.Framer {
+	if err := framer.WriteWindowUpdate(23, 44); err != nil {
+		log.Fatalln(err)
+	}
+	return framer
+}
+
 // 读Frame
 func readFrame(framer *http2.Framer) {
 	// 针对读取CONTINUATION帧需要设置为true，否则报错
@@ -193,7 +206,7 @@ func readFrame(framer *http2.Framer) {
 /**
 Frame是HTTP/2协议中最小传输单位，每个Frame包含一个9字节大小的FrameHeader和不定长的Frame Payload：
 Payload结构和内容取决于Type类型，如果Type类型是SETTINGS，Payload的大小将受SETTINGS_MAX_FRAME_SIZE参数限制。
-Type类型包含：Headers、Data、PushPromise、Priority、Ping、RSTStream、GoAway、Continuation。
+Type类型包含：Headers、Data、PushPromise、Priority、Settings、Ping、RSTStream、GoAway、Continuation、WindowUpdate。
 具体内容格式如下：
  +-----------------------------------------------+
  |                 Length (24)                   |
@@ -206,7 +219,7 @@ Type类型包含：Headers、Data、PushPromise、Priority、Ping、RSTStream、
  +---------------------------------------------------------------+
 
  HTTP/2 Frame：https://tools.ietf.org/html/rfc8336
- HTTP/2: https://tools.ietf.org/html/rfc7540
+ HTTP/2: https://tools.ietf.org/html/rfc7540#page-12
 */
 func TestHttp2Frame(t *testing.T) {
 	buf := new(bytes.Buffer)
@@ -221,4 +234,5 @@ func TestHttp2Frame(t *testing.T) {
 	readFrame(writePing(fr))
 	readFrame(writeGoAway(fr))
 	readFrame(writeContinuation(fr))
+	readFrame(writeWindowUpdate(fr))
 }

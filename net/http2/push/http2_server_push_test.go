@@ -26,7 +26,7 @@ func TestHttp2ServerPush(t *testing.T) {
 			if err := pusher.Push("/static/style.css", nil); err != nil {
 				log.Printf("Failed to push: %v", err)
 			}
-			if err := pusher.Push("/static/avatar.jpg", nil); err != nil {
+			if err := pusher.Push("/static/h2push.png", nil); err != nil {
 				log.Printf("Failed to push: %v", err)
 			}
 		}
@@ -39,7 +39,7 @@ func TestHttp2ServerPush(t *testing.T) {
 			</head>
 			<body>
 			Hello <span id="data"></span> !<br/>
-			<img src="/static/avatar.jpg" />
+			<img src="/static/h2push.png" />
 			</body>
 			</html>
 			`))
