@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Sample of websocket with golang</title>
+    <script>
+        let ws = new WebSocket("ws://localhost:8080/ws");
+        ws.onmessage = function(e) {
+            console.log("接收Server端的信息:" + e.data);
+            document.getElementById('result').innerHTML = "Server端发来的信息：" + e.data;
+        };
+
+        ws.onclose = function (e) {
+            console.log("close "+ e.data)
+        };
+
+        ws.onopen = function () {
+            console.log('Connection Opened');
+        };
+
+        ws.onerror = function (error) {
+            console.log('WebSocket Error ' + error);
+        };
+
+        function send(){
+            let msg = document.getElementById('name').value;
+            ws.send(msg);
+            console.log("Client发送的信息:" + msg);
+        }
+    </script>
+</head>
+<body>
+    <input id="name" type="text" />
+    <input type="button" id="sendBtn" value="send" onclick="send()"></input>
+    <ul id="result"></ul>
+</body>
+</html>

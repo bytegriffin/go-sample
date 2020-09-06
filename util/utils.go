@@ -1,7 +1,6 @@
 package util
 
 import (
-	"fmt"
 	"io"
 	"log"
 )
@@ -17,7 +16,6 @@ func If(exp bool, a, b interface{}) interface{} {
 // 判断是否报错
 func IsNilError(info string, err error) bool {
 	if err != nil {
-		fmt.Println(info, err)
 		log.Println(info, err)
 		panic(err)
 		// os.Exit(1)
@@ -29,7 +27,6 @@ func IsNilError(info string, err error) bool {
 // 判断是否已读取到末尾
 func IsEofError(info string, err error) bool {
 	if err != io.EOF {
-		fmt.Println(err, info)
 		log.Println(err, info)
 		return false
 	}
@@ -38,7 +35,6 @@ func IsEofError(info string, err error) bool {
 
 func IsHttpNilError(info string, err error) bool {
 	if err != nil && err != io.EOF {
-		fmt.Println(info, err)
 		log.Println(info, err)
 		panic(err)
 		// os.Exit(1)
