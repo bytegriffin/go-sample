@@ -1,2 +1,2 @@
 # go-sample
-练手的小例子
+Golang学习的小例子
