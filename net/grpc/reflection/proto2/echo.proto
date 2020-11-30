@@ -1,0 +1,17 @@
+syntax = "proto3";
+option go_package = ".;proto2";
+
+
+message EchoRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message EchoResponse {
+  int32 code=1;
+  string message = 2;
+}
+
+service Echo {
+  rpc Echo(EchoRequest) returns (EchoResponse);
+}

@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package proto;
+
+import "google/protobuf/validator.proto";
+
+option go_package = ".;proto";
+
+
+message ValidateRequest {
+  // some_integer can only be in range (1, 100).
+  int32 id = 1 [(validator.field) = {int_gt: 0, int_lt: 100}];
+  // important_string must be a lowercase alpha-numeric of 5 to 30 characters (RE2 syntax).
+  string name = 2 [(validator.field) = {regex: "^[a-z]{2,5}$"}];
+}
+
+message InnerMessage {
+  // some_integer can only be in range (0, 100).
+  int32 some_integer = 1 [(validator.field) = {int_gt: 0, int_lt: 100}];
+  // some_float can only be in range (0;1).
+  double some_float = 2 [(validator.field) = {float_gte: 0, float_lte: 1}];
+}
+
+message ValidateResponse {
+  int32 code = 1 [(validator.field) = {int_gt: 100, int_lt: 900}];
+  // important_string must be a lowercase alpha-numeric of 5 to 30 characters (RE2 syntax).
+  string message = 2 [(validator.field) = {regex: "^[a-z]{2,5}$"}];
+  // proto3 doesn't have `required`, the `msg_exist` enforces presence of InnerMessage.
+  InnerMessage inner = 3 [(validator.field) = {msg_exists : true}];
+}
+
+service ValidateService {
+  rpc ValidatorRPC(ValidateRequest) returns (ValidateResponse);
+}

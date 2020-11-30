@@ -1,5 +1,7 @@
 package main
 
 func main() {
-	println("hello world")
+	ch := make(chan int, 1)
+	ch <- 1
+	ch <- 2
 }

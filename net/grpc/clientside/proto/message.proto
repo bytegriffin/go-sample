@@ -1,0 +1,18 @@
+syntax = "proto3";
+option go_package = ".;proto";
+
+message HelloRequest {
+  bytes data = 1;
+}
+
+message HelloResponse {
+  int32 code=1;
+  string message = 2;
+}
+
+service HelloService {
+  rpc UploadPhoto(stream HelloRequest) returns (HelloResponse);
+}
+
+
+
