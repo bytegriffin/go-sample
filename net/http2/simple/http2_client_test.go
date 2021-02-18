@@ -25,7 +25,7 @@ func startH2Client() {
 	client := &http.Client{
 		Transport: &http2.Transport{
 			TLSClientConfig: &tls.Config{
-				//RootCAs:            rootCAs,
+				RootCAs:            rootCAs,
 				InsecureSkipVerify: false,
 				ServerName:         "localhost",
 			},
@@ -34,7 +34,7 @@ func startH2Client() {
 		},
 	}
 
-	resp, err := client.Get("https://localhost:8000/")
+	resp, err := client.Get("https://localhost:8000")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,6 +45,10 @@ func startH2Client() {
 	}
 
 	resp.Body.Close()
+
+	certInfo := resp.TLS.PeerCertificates[0]
+	log.Printf("过期时间: %v \n", certInfo.NotAfter)
+	log.Printf("组织信息: %v \n", certInfo.Subject)
 
 	log.Printf("Response Http Proto: %s Content: %s", resp.Proto, string(bytes))
 }

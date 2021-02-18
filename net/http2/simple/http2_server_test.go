@@ -46,7 +46,7 @@ func startH2Server() {
 	//	log.Fatal(err)
 	//}
 
-	log.Printf("Listening [localhost:8000]...\n")
+	log.Printf("start H2 server [localhost:8000]...\n")
 	if err := server.ListenAndServeTLS("server.crt", "server.key"); err != nil {
 		log.Fatal(err)
 	}
@@ -65,7 +65,7 @@ func startH2CServer() {
 		Addr:    ":8000",
 		Handler: h2c.NewHandler(handler, &http2.Server{}),
 	}
-	log.Printf("Listening [localhost:8000]...\n")
+	log.Printf("start H2C server [localhost:8000]...\n")
 	server.ListenAndServe()
 }
 

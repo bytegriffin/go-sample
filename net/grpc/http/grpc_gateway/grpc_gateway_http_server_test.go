@@ -10,6 +10,8 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	"golang.org/x/net/context"
+
+	gw "go-sample/net/grpc/http/grpc_gateway/proto"
 )
 
 const (
@@ -69,7 +71,8 @@ func startH2CGrpcGatewayHTTPServer() {
 	s := grpc.NewServer()
 
 	//将SimpleHello注册到grpc中
-	pb.RegisterHelloServer(s, &grpcServer{})
+	//pb.RegisterHelloServer(s, &grpcServer{})
+	gw.RegisterHelloServer(s, &grpcServer{})
 	log.Println("开启Grpc服务：" + GrpcAddress)
 
 	//开启grpc服务
